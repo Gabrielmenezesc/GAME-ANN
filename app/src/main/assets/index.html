@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Corrida do Amor - F1 Dia dos Namorados</title>
+    <!-- CSS Link -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,700;0,900;1,400&family=Space+Grotesk:wght@400;700&family=Sacramento&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Canvas Confetti for Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen-overlay">
+        <div class="loader-container">
+            <i class="fa-solid fa-heart-pulse heartbeat-icon"></i>
+            <h2>Carregando a Pista...</h2>
+            <p>Aquecendo os motores e espalhando amor ❤️</p>
+        </div>
+    </div>
+
+    <!-- Intro Customization Screen -->
+    <div id="intro-screen" class="screen-overlay active">
+        <div class="intro-card">
+            <div class="logo-box">
+                <i class="fa-solid fa-flag-checkered race-icon"></i>
+                <i class="fa-solid fa-heart core-heart"></i>
+                <h1>Corrida do Amor</h1>
+                <span class="subtitle">Grande Prêmio do Dia dos Namorados</span>
+            </div>
+            
+            <p class="intro-desc">
+                Um jogo de tabuleiro 3D em estilo <strong>Low Poly</strong>. O objetivo hoje não é cruzar a linha primeiro, mas sim completar cada curva da vida juntos. Preparem-se para desafios românticos e pit-stops divertidos!
+            </p>
+
+            <div class="player-inputs">
+                <div class="input-group text-red">
+                    <label><i class="fa-solid fa-car-side icon-red"></i> Carro Vermelho (Piloto 1):</label>
+                    <input type="text" id="p1-name" value="Anny" maxlength="15">
+                </div>
+                <div class="input-group text-pink">
+                    <label><i class="fa-solid fa-car-side icon-pink"></i> Carro Rosa (Piloto 2):</label>
+                    <input type="text" id="p2-name" value="Gabriel" maxlength="15">
+                </div>
+            </div>
+
+            <button id="start-game-btn" class="btn primary-btn pulse">
+                <i class="fa-solid fa-play"></i> LARGAR JUNTOS!
+            </button>
+            
+            <div class="audio-tip">
+                <i class="fa-solid fa-volume-high"></i> Use som para uma melhor imersão mecânica!
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game UI Layout -->
+    <div id="game-ui" class="fade-in">
+        <!-- Dashboard Top Header -->
+        <header class="hud-header">
+            <div class="hud-panel turn-panel">
+                <span class="label">VEZ DO PILOTO:</span>
+                <div class="active-player-display">
+                    <i class="fa-solid fa-flag-checkered active-color-icon"></i>
+                    <span id="current-player-name">Anny</span>
+                </div>
+            </div>
+
+            <div class="hud-panel scoreboard">
+                <div class="score-row p1-score active-border">
+                    <span class="car-badge bg-red">P1</span>
+                    <span id="hud-p1-name" class="p-name">Anny</span>
+                    <span class="p-pos">Km <span id="p1-pos">1</span>/50</span>
+                </div>
+                <div class="vs-badge"><i class="fa-solid fa-heart"></i></div>
+                <div class="score-row p2-score">
+                    <span class="car-badge bg-pink">P2</span>
+                    <span id="hud-p2-name" class="p-name">Gabriel</span>
+                    <span class="p-pos">Km <span id="p2-pos">1</span>/50</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Turn Indicators Floating Left -->
+        <div class="left-controls">
+            <div class="control-box text-center">
+                <h3>Vez de</h3>
+                <div id="next-turn-avatar" class="turn-avatar p1-active">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <p id="turn-announcement" class="pulse-text">Role o Dado!</p>
+            </div>
+        </div>
+
+        <!-- 3D View Manipulation Controls -->
+        <div class="camera-controls">
+            <button id="btn-camera-toggle" class="circle-btn" title="Alternar Câmera">
+                <i class="fa-solid fa-camera"></i>
+            </button>
+            <button id="btn-audio-toggle" class="circle-btn" title="Ligar/Desligar Som">
+                <i class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+
+        <!-- Floating Controls Right / Absolute Bottom: Dice Roller HUD -->
+        <div class="bottom-action-bar">
+            <div class="dice-interaction-container">
+                <div class="dice-tip">Clique abaixo para rolar o dado 3D em pista!</div>
+                <button id="roll-dice-btn" class="btn roll-btn">
+                    <span class="roll-content">
+                        <i class="fa-solid fa-dice-five roll-dice-icon animate-spin-hover"></i> 
+                        ROLAR DADO 
+                    </span>
+                </button>
+                <div id="dice-result-visual" class="dice-result-tag scale-out">
+                    Caminhou <span id="dice-result-num">4</span> casas! 🏁
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Card Modal (Cards Românticos) -->
+    <div id="card-modal" class="modal-overlay">
+        <div class="card-modal-content">
+            <div id="card-header" class="card-header-banner">
+                <div class="card-icon-container">
+                    <i id="card-class-icon" class="fa-solid fa-heart"></i>
+                </div>
+                <h2 id="card-category-title">História do Casal</h2>
+            </div>
+            
+            <div class="card-body">
+                <div class="player-turn-micro">
+                    <span class="micro-bold text-dark-grey">Piloto Convocado:</span> 
+                    <span id="modal-player-name" class="micro-player bg-red">Anny</span>
+                </div>
+                
+                <p id="card-prompt-text" class="card-question-text">
+                    Onde foi o primeiro beijo do casal? Se errar, volta uma casa!
+                </p>
+
+                <!-- Feedback Area of the Event -->
+                <div class="card-consequences">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="card-consequence-text" class="consequence-label">Errou: Volta 1 casa</span>
+                </div>
+            </div>
+
+            <div class="card-footer-actions">
+                <button id="card-action-success" class="btn btn-card-success">
+                    <i class="fa-solid fa-check"></i> Concluído / Acertei!
+                </button>
+                <button id="card-action-fail" class="btn btn-card-fail">
+                    <i class="fa-solid fa-xmark"></i> Falhou / Errei
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Podium / Cutscene Screen (Abertura Neon e Textos Exatos) -->
+    <div id="podium-screen" class="screen-overlay dark-violet-opacity">
+        <div class="celebration-box fade-in-scale">
+            <div class="sparkles-container">
+                <i class="fa-solid fa-star star-celebrate star-1"></i>
+                <i class="fa-solid fa-star star-celebrate star-2"></i>
+                <i class="fa-solid fa-heart heart-celebrate heart-1"></i>
+                <i class="fa-solid fa-heart heart-celebrate heart-2"></i>
+            </div>
+            
+            <div class="f1-winners-badge">
+                <i class="fa-solid fa-trophy golden-trophy-pulse"></i>
+                <p>GRANDE PRÊMIO DO AMOR CONCLUÍDO!</p>
+            </div>
+
+            <!-- EXATO REQUISITO 1: ERAS TU, ANNY! EU TE AMO (Neon Brilhante) -->
+            <div class="neon-giant-title">
+                <span class="neon-glow-red">ERAS TU, ANNY!</span>
+                <span class="neon-glow-pink">EU TE AMO</span>
+            </div>
+
+            <div class="divider-hearts">
+                <span class="heart-dot">❤️</span>
+                <span class="line-dot"></span>
+                <span class="heart-dot">❤️</span>
+                <span class="line-dot"></span>
+                <span class="heart-dot">❤️</span>
+            </div>
+
+            <!-- EXATO REQUISITO 2: Texto romântico elegante -->
+            <p class="final-romantic-prose">
+                Nesta corrida, não importava quem cruzasse a linha primeiro, porque a vitória sempre foi nossa. Você é minha co-pilota, meu motor e meu destino final. Com você, cada curva é uma aventura e cada reta é uma promessa de que chegaremos juntos, lado a lado, em qualquer lugar. Obrigado por ser minha maior conquista. Feliz Dia dos Namorados.
+            </p>
+
+            <button id="btn-restart-game" class="btn primary-btn pulse-slower">
+                <i class="fa-solid fa-rotate-right"></i> Correr Novamente!
+            </button>
+        </div>
+    </div>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- 3D Spatial Hologram floating question (VR feeling) -->
+    <div id="spatial-hologram" class="spatial-hologram-card">
+        <div class="holo-header">
+            <i class="fa-solid fa-satellite-dish holo-antenna"></i>
+            <span id="holo-title">PERGUNTA FLUTUANTE VR</span>
+        </div>
+        <p id="holo-txt">Sintonizando pergunta...</p>
+        <div class="holo-glow-bar"></div>
+    </div>
+
+    <!-- 3D Dice Virtual Tap Prompt -->
+    <div id="dice-tap-prompt" class="dice-tap-indicator" style="display: none;">
+        <i class="fa-solid fa-hand-pointer"></i> Toque para Rolar!
+    </div>
+
+    <!-- Game script -->
+    <script src="main.js"></script>
+</body>
+</html>

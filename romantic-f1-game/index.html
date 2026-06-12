@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Corrida do Amor - Grande Prêmio F1</title>
+    <!-- CSS File -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,700;0,900;1,400&family=Space+Grotesk:wght@400;700&family=Sacramento&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti for victory celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- Web Audio & Loading Splash -->
+    <div id="loading-screen" class="screen-overlay">
+        <div class="loader-container">
+            <i class="fa-solid fa-heart-pulse heartbeat-icon"></i>
+            <h2>CONECTANDO SISTEMAS VR...</h2>
+            <p>Aquecendo motores da Fórmula 1 e distribuindo afeto... ❤️</p>
+        </div>
+    </div>
+
+    <!-- Customized Intro / Onboarding Screen -->
+    <div id="intro-screen" class="screen-overlay active">
+        <div class="intro-card">
+            <div class="logo-box">
+                <i class="fa-solid fa-flag-checkered race-icon"></i>
+                <i class="fa-solid fa-heart core-heart"></i>
+                <h1>Corrida do Amor</h1>
+                <span class="subtitle">Grande Prêmio dos Namorados</span>
+            </div>
+            
+            <p class="intro-desc">
+                Um jogo multiplayer local em 3D de tabuleiro F1 em estilo <strong>Low Poly</strong>. Vocês não correm para ganhar um do outro, mas sim para comemorar cada curva do relacionamento sob o rádio da emoção e desafios fofos!
+            </p>
+
+            <div class="player-inputs">
+                <div class="input-group text-red">
+                    <label><i class="fa-solid fa-car-side"></i> Carro da Anny (Piloto 1):</label>
+                    <input type="text" id="p1-name" value="Anny" maxlength="15">
+                </div>
+                <div class="input-group text-pink">
+                    <label><i class="fa-solid fa-car-side"></i> Carro do Gabriel (Piloto 2):</label>
+                    <input type="text" id="p2-name" value="Gabriel" maxlength="15">
+                </div>
+            </div>
+
+            <button id="start-game-btn" class="btn primary-btn pulse">
+                <i class="fa-solid fa-play"></i> LARGAR JUNTOS!
+            </button>
+            
+            <div class="audio-tip">
+                <i class="fa-solid fa-volume-high"></i> Ligue o som do seu dispositivo para máxima imersão!
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Overlay container -->
+    <div id="ui">
+        <div class="glass scoreboard">
+            <h2>🏁 GP Dia dos Namorados</h2>
+            
+            <!-- Turn indicators -->
+            <div id="turno" class="turno-display">
+                Vez de <span id="current-player-name" class="p-name-highlight">Anny</span>
+            </div>
+
+            <!-- Scoreboard panel -->
+            <div class="scoreboard-grid">
+                <div class="player-score-card p1-row active-border">
+                    <span class="badge red">P1</span>
+                    <span id="hud-p1-name">Anny</span>
+                    <span class="hud-pos">KM <span id="p1-pos">1</span>/50</span>
+                </div>
+                <div class="player-score-card p2-row">
+                    <span class="badge pink">P2</span>
+                    <span id="hud-p2-name">Gabriel</span>
+                    <span class="hud-pos">KM <span id="p2-pos">1</span>/50</span>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <button id="rollDice" class="roll-btn">
+                🎲 JOGAR DADO 3D
+            </button>
+            
+            <div id="dice-result-visual" class="dice-result-popup scale-out">
+                Sorteou <span id="dice-result-num">4</span> casas! 🏁
+            </div>
+        </div>
+
+        <!-- Camera and Audio Quick Controls -->
+        <div class="camera-controls">
+            <button id="btn-camera-toggle" class="circle-btn" title="Mudar Câmera">
+                <i class="fa-solid fa-camera"></i>
+            </button>
+            <button id="btn-audio-toggle" class="circle-btn" title="Mutar Som">
+                <i class="fa-solid fa-volume-up"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Dynamic Interactive Challenge Modal -->
+    <div id="challengeModal" class="modal">
+        <div class="modal-content">
+            <div id="modal-header-banner" class="modal-header">
+                <i id="challenge-icon" class="fa-solid fa-heart"></i>
+                <h2 id="challenge-title">Desafio</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-meta">
+                    <span class="meta-label">Piloto da vez:</span>
+                    <span id="modal-player-name" class="meta-val">Anny</span>
+                </div>
+                <p id="challengeText" class="question-main"></p>
+                <div class="penalty-panel">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span id="penalty-text">Se falhar: Recua 1 casa</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="btn-challenge-success" class="btn-continue success">
+                    <i class="fa-solid fa-check"></i> Concluí / Acertei!
+                </button>
+                <button id="btn-challenge-fail" class="btn-continue fail">
+                    <i class="fa-solid fa-xmark"></i> Falhei / Errei
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Cinematic Message View Container -->
+    <div id="finalMessage" class="final-overlay">
+        <div class="celebration-box">
+            <div class="trophy-container">
+                <i class="fa-solid fa-trophy trophy-glow"></i>
+            </div>
+            
+            <!-- Neon Giant text - EXACT REQUIREMENT 1 -->
+            <h1 class="neon-giant-title">
+                ERAS TU, ANNY! EU TE AMO
+            </h1>
+
+            <div class="heart-divider">
+                <span>❤️</span>
+                <span class="dot-line"></span>
+                <span>❤️</span>
+                <span class="dot-line"></span>
+                <span>❤️</span>
+            </div>
+
+            <!-- EXACT REQUIREMENT 2 -->
+            <p class="cursive-elegant-text">
+                Nesta corrida, não importava quem cruzasse a linha primeiro, porque a vitória sempre foi nossa. Você é minha co-pilota, meu motor e meu destino final. Com você, cada curva é uma aventura e cada reta é uma promessa de que chegaremos juntos, lado a lado, em qualquer lugar. Obrigado por ser minha maior conquista. Feliz Dia dos Namorados.
+            </p>
+
+            <button id="btn-restart-game" class="restart-btn">
+                <i class="fa-solid fa-flag-checkered"></i> CORRER NOVAMENTE
+            </button>
+        </div>
+    </div>
+
+    <!-- VR Holographic Question Floating Layer (Projects on top of the active car) -->
+    <div id="spatial-hologram" class="spatial-hologram-card">
+        <div class="holo-header">
+            <i class="fa-solid fa-satellite-dish holo-antenna"></i>
+            <span id="holo-title">PERGUNTA FLUTUANTE VR</span>
+        </div>
+        <p id="holo-txt">Sintonizando pergunta...</p>
+        <div class="holo-glow-bar"></div>
+    </div>
+
+    <!-- 3D Dice Direct Tap Overlay Prompter -->
+    <div id="dice-tap-prompt" class="dice-tap-indicator" style="display: none;">
+        <i class="fa-solid fa-hand-pointer"></i> Toque para Rolar!
+    </div>
+
+    <!-- 3D WebGL Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Modular Game Script Bootloader -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

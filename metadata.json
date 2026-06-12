@@ -1,0 +1,6 @@
+{
+  "name": "Corrida do Amor",
+  "description": "Um lindo jogo de tabuleiro de F1 romântico em 3D para casais, feito com Three.js em um WebView de alta performance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
